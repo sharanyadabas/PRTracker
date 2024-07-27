@@ -1,0 +1,6 @@
+@PRTracker_HostAddress = http://localhost:5279
+
+GET {{PRTracker_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
