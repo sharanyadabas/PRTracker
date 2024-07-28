@@ -21,5 +21,20 @@ namespace PRTracker.Data
         }
 
         public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserLift> UserLifts { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserLift>()
+                .HasOne(ul => ul.User)
+                .WithMany(u => u.UserLifts)
+                .HasForeignKey(ul => ul.UserId);
+
+            modelBuilder.Entity<UserLift>()
+                .HasOne(ul => ul.Exercise)
+                .WithMany(e => e.UserLifts)
+                .HasForeignKey(ul => ul.ExerciseId);
+        }
     }
 }
