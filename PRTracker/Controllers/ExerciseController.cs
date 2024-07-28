@@ -87,10 +87,25 @@ namespace PRTracker.Controllers
                     {
                         Id = model.Id,
                         Name = model.Name,
-                        Description = model.Description,
-                        Instructions = model.Instructions,
-                        Images = model.Images,
+                        Description = "",
+                        Instructions = "",
+                        Images = [],
                     };
+
+                    if (!string.IsNullOrEmpty(model.Description))
+                    {
+                        postedModel.Description = model.Description;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Instructions))
+                    {
+                        postedModel.Instructions = model.Instructions;
+                    }
+
+                    if (model.Images != null && model.Images.Any())
+                    {
+                        postedModel.Images = model.Images;
+                    }
 
                     _context.Exercises.Add(postedModel);
                     _context.SaveChanges();
@@ -115,12 +130,12 @@ namespace PRTracker.Controllers
                 response.Status = false;
                 response.Message = "Something went wrong";
 
-                return BadRequest(response);
+                return BadRequest(ex);
             }
         }
 
         [HttpPut]
-        public IActionResult UpdateExercise(CreateExerciseViewModel model)
+        public IActionResult UpdateExercise(UpdateExerciseViewModel model)
         {
             BaseResponseModel response = new BaseResponseModel();
 
@@ -149,26 +164,31 @@ namespace PRTracker.Controllers
                     }
 
 
-                    exerciseDetails.Name = model.Name;
-                    exerciseDetails.Description = model.Description;
-                    exerciseDetails.Instructions = model.Instructions;
-                    exerciseDetails.Images = model.Images;
-
-                    var postedModel = new Exercise()
+                    if (!string.IsNullOrEmpty(model.Name))
                     {
-                        Id = model.Id,
-                        Name = model.Name,
-                        Description = model.Description,
-                        Instructions = model.Instructions,
-                        Images = model.Images,
-                    };
+                        exerciseDetails.Name = model.Name;
+                    }
 
-                    _context.Exercises.Add(postedModel);
+                    if (!string.IsNullOrEmpty(model.Description))
+                    {
+                        exerciseDetails.Description = model.Description;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Instructions))
+                    {
+                        exerciseDetails.Instructions = model.Instructions;
+                    }
+
+                    if (model.Images != null && model.Images.Any())
+                    {
+                        exerciseDetails.Images = model.Images;
+                    }
+
                     _context.SaveChanges();
 
                     response.Status = true;
-                    response.Message = "Created Exercise Successfully";
-                    response.Data = postedModel;
+                    response.Message = "Updated Exercise Successfully";
+                    response.Data = exerciseDetails;
 
                     return Ok(response);
                 }
