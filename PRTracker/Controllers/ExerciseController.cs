@@ -209,5 +209,41 @@ namespace PRTracker.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteExercise(int id)
+        {
+            BaseResponseModel response = new BaseResponseModel();
+            try
+            {
+                var exercise = _context.Exercises.Where(x => x.Id == id).FirstOrDefault();
+
+                if (exercise == null)
+                {
+                    response.Status = false;
+                    response.Message = "Exercise Doesn't Exist";
+
+                    return BadRequest(response);
+                }
+
+
+                _context.Exercises.Remove(exercise);
+                _context.SaveChanges();
+                
+                response.Status = true;
+                response.Message = "Exercise Deleted Successfully";
+                response.Data = exercise;
+
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "Something went wrong";
+
+                return BadRequest(response);
+            }
+        }
     }
 }
