@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PRTracker.Data;
 using PRTracker.Entities;
@@ -8,28 +9,28 @@ namespace PRTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ExerciseController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly ExerciseDbContext _context;
 
-        public ExerciseController(ExerciseDbContext context)
+        public UserController(ExerciseDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public IActionResult GetAllExercises()
+        public IActionResult GetAllUsers()
         {
             BaseResponseModel response = new BaseResponseModel();
 
             try
             {
-                var exerciseCount = _context.Exercises.Count();
-                var exerciseList = _context.Exercises.ToList();
+                var userCount = _context.Users.Count();
+                var userList = _context.Users.ToList();
 
                 response.Status = true;
                 response.Message = "Success";
-                response.Data = new { Exercises = exerciseList, Count = exerciseCount };
+                response.Data = new { Users = userList, Count = userCount };
 
                 return Ok(response);
             }
@@ -43,15 +44,15 @@ namespace PRTracker.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetExerciseByID(int id)
+        public IActionResult GetUserByID(int id)
         {
             BaseResponseModel response = new BaseResponseModel();
 
             try
             {
-                var exercise = _context.Exercises.Where(x => x.Id == id).FirstOrDefault();
+                var user = _context.Users.Where(x => x.Id == id).FirstOrDefault();
 
-                if (exercise == null)
+                if (user == null)
                 {
                     response.Status = false;
                     response.Message = "Record Doesn't Exist";
@@ -61,7 +62,7 @@ namespace PRTracker.Controllers
 
                 response.Status = true;
                 response.Message = "Success";
-                response.Data = exercise;
+                response.Data = user;
 
                 return Ok(response);
             }
@@ -75,7 +76,7 @@ namespace PRTracker.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateExercise(CreateExerciseViewModel model)
+        public IActionResult CreateUser(CreateUserViewModel model)
         {
             BaseResponseModel response = new BaseResponseModel();
 
@@ -83,36 +84,20 @@ namespace PRTracker.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var postedModel = new Exercise()
+                    var postedModel = new User()
                     {
                         Id = model.Id,
-                        Name = model.Name,
-                        Description = "",
-                        Instructions = "",
-                        Images = [],
+                        UserName = model.UserName,
+                        Email = model.Email,
+                        PasswordHash = model.PasswordHash,
                         UserLifts = new List<UserLift>(),
                     };
 
-                    if (!string.IsNullOrEmpty(model.Description))
-                    {
-                        postedModel.Description = model.Description;
-                    }
-
-                    if (!string.IsNullOrEmpty(model.Instructions))
-                    {
-                        postedModel.Instructions = model.Instructions;
-                    }
-
-                    if (model.Images != null && model.Images.Any())
-                    {
-                        postedModel.Images = model.Images;
-                    }
-
-                    _context.Exercises.Add(postedModel);
+                    _context.Users.Add(postedModel);
                     _context.SaveChanges();
 
                     response.Status = true;
-                    response.Message = "Created Exercise Successfully";
+                    response.Message = "Created User Successfully";
                     response.Data = postedModel;
 
                     return Ok(response);
@@ -136,7 +121,7 @@ namespace PRTracker.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateExercise(UpdateExerciseViewModel model)
+        public IActionResult UpdateUser(UpdateUserViewModel model)
         {
             BaseResponseModel response = new BaseResponseModel();
 
@@ -147,15 +132,15 @@ namespace PRTracker.Controllers
                     if (model.Id <= 0)
                     {
                         response.Status = false;
-                        response.Message = "Invalid Exercise Id";
+                        response.Message = "Invalid User Id";
                         response.Data = ModelState;
 
                         return BadRequest(response);
                     }
 
-                    var exerciseDetails = _context.Exercises.Where(x => x.Id == model.Id).FirstOrDefault();
+                    var userDetails = _context.Users.Where(x => x.Id == model.Id).FirstOrDefault();
 
-                    if (exerciseDetails == null)
+                    if (userDetails == null)
                     {
                         response.Status = false;
                         response.Message = "Invalid Field";
@@ -165,31 +150,26 @@ namespace PRTracker.Controllers
                     }
 
 
-                    if (!string.IsNullOrEmpty(model.Name))
+                    if (!string.IsNullOrEmpty(model.UserName))
                     {
-                        exerciseDetails.Name = model.Name;
+                        userDetails.UserName = model.UserName;
                     }
 
-                    if (!string.IsNullOrEmpty(model.Description))
+                    if (!string.IsNullOrEmpty(model.Email))
                     {
-                        exerciseDetails.Description = model.Description;
+                        userDetails.Email = model.Email;
                     }
 
-                    if (!string.IsNullOrEmpty(model.Instructions))
+                    if (!string.IsNullOrEmpty(model.PasswordHash))
                     {
-                        exerciseDetails.Instructions = model.Instructions;
-                    }
-
-                    if (model.Images != null && model.Images.Any())
-                    {
-                        exerciseDetails.Images = model.Images;
+                        userDetails.PasswordHash = model.PasswordHash;
                     }
 
                     _context.SaveChanges();
 
                     response.Status = true;
                     response.Message = "Updated Exercise Successfully";
-                    response.Data = exerciseDetails;
+                    response.Data = userDetails;
 
                     return Ok(response);
                 }
@@ -212,28 +192,28 @@ namespace PRTracker.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteExercise(int id)
+        public IActionResult DeleteUser(int id)
         {
             BaseResponseModel response = new BaseResponseModel();
             try
             {
-                var exercise = _context.Exercises.Where(x => x.Id == id).FirstOrDefault();
+                var user = _context.Users.Where(x => x.Id == id).FirstOrDefault();
 
-                if (exercise == null)
+                if (user == null)
                 {
                     response.Status = false;
-                    response.Message = "Exercise Doesn't Exist";
+                    response.Message = "User Doesn't Exist";
 
                     return BadRequest(response);
                 }
 
 
-                _context.Exercises.Remove(exercise);
+                _context.Users.Remove(user);
                 _context.SaveChanges();
-                
+
                 response.Status = true;
-                response.Message = "Exercise Deleted Successfully";
-                response.Data = exercise;
+                response.Message = "User Deleted Successfully";
+                response.Data = user;
 
                 return Ok(response);
 
