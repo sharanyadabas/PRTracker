@@ -220,6 +220,7 @@ namespace PRTracker.Controllers
                         userLiftDetails.Notes = model.Notes;
                     }
                     
+                    _context.UserLifts.Update(userLiftDetails);
                     _context.SaveChanges();
 
                     response.Status = true;

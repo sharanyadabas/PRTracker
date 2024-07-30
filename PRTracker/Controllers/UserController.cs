@@ -168,10 +168,11 @@ namespace PRTracker.Controllers
 
                     userDetails.ModifiedDate = DateTime.UtcNow;
 
+                    _context.Users.Update(userDetails);
                     _context.SaveChanges();
 
                     response.Status = true;
-                    response.Message = "Updated Exercise Successfully";
+                    response.Message = "Updated User Successfully";
                     response.Data = userDetails;
 
                     return Ok(response);

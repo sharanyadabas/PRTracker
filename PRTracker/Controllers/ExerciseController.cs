@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PRTracker.Data;
 using PRTracker.Entities;
 using PRTracker.Models;
+using System.Net.Http.Headers;
 
 namespace PRTracker.Controllers
 {
@@ -66,6 +67,35 @@ namespace PRTracker.Controllers
                 response.Status = true;
                 response.Message = "Success";
                 response.Data = exercise;
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "Something went wrong";
+                response.Data = ex;
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet("Search/{searchText}")]
+        public IActionResult SearchExercises(string searchText)
+        {
+            BaseResponseModel response = new BaseResponseModel();
+
+            try
+            {
+                var searchedExercise = _context.Exercises.Where(x => x.Name.Contains(searchText)).Select(x => new
+                {
+                    x.Id,
+                    x.Name
+                }).ToList();
+
+                response.Status = true;
+                response.Message = "Success";
+                response.Data = searchedExercise;
 
                 return Ok(response);
             }
@@ -173,6 +203,7 @@ namespace PRTracker.Controllers
 
                     exerciseDetails.ModifiedDate = DateTime.UtcNow;
 
+                    _context.Exercises.Update(exerciseDetails);
                     _context.SaveChanges();
 
                     response.Status = true;
@@ -226,6 +257,53 @@ namespace PRTracker.Controllers
 
                 return Ok(response);
 
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "Something went wrong";
+                response.Data = ex;
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost]
+        [Route("upload-exercise-image")]
+        public async Task<IActionResult> UploadExerciseImage(IFormFile imageFile)
+        {
+
+            BaseResponseModel response = new BaseResponseModel();
+
+            try
+            {
+                var filename = ContentDispositionHeaderValue.Parse(imageFile.ContentDisposition).FileName.TrimStart('\"').TrimEnd('\"');
+                string newPath = @"C:\to-delete\";
+
+                if (!Directory.Exists(newPath))
+                {
+                    Directory.CreateDirectory(newPath);
+                }
+
+                string[] allowedImagesExtensions = new string[] { ".jpg", ".jpeg", ".png" };
+
+                if (!allowedImagesExtensions.Contains(Path.GetExtension(filename)))
+                {
+                    response.Status = false;
+                    response.Message = "Only jpg, jpeg, and png files are allowed";
+
+                    return BadRequest(response);
+                }
+
+                string newFileName = Guid.NewGuid() + Path.GetExtension(filename);
+                string fullFilePath = Path.Combine(newPath, newFileName);
+
+                using (var stream = new FileStream(fullFilePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                return Ok(new { ProfileImage = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/StaticFiles/{newFileName}" });
             }
             catch (Exception ex)
             {
