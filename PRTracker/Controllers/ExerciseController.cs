@@ -88,42 +88,13 @@ namespace PRTracker.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var postedModel = new Exercise()
-                    {
-                        Id = model.Id,
-                        Name = model.Name,
-                        Description = "",
-                        Instructions = "",
-                        Images = [],
-                        UserLifts = new List<UserLift>(),
-                    };
-
-                    if (!string.IsNullOrEmpty(model.Description))
-                    {
-                        postedModel.Description = model.Description;
-                    }
-
-                    if (!string.IsNullOrEmpty(model.Instructions))
-                    {
-                        postedModel.Instructions = model.Instructions;
-                    }
-
-                    if (model.Images != null && model.Images.Any())
-                    {
-                        postedModel.Images = model.Images;
-                    }
+                    var postedModel = _mapper.Map<Exercise>(model);
+                    postedModel.UserLifts = new List<UserLift>();
 
                     _context.Exercises.Add(postedModel);
                     _context.SaveChanges();
 
-                    var createdModel = new CreateExerciseViewModel
-                    {
-                        Id = postedModel.Id,
-                        Name = postedModel.Name,
-                        Description = postedModel.Description,
-                        Instructions = postedModel.Instructions,
-                        Images = postedModel.Images
-                    };
+                    var createdModel = _mapper.Map<CreateExerciseViewModel>(postedModel);
 
                     response.Status = true;
                     response.Message = "Created Exercise Successfully";
@@ -180,17 +151,17 @@ namespace PRTracker.Controllers
                     }
 
 
-                    if (!string.IsNullOrEmpty(model.Name))
+                    if (model.Name != null)
                     {
                         exerciseDetails.Name = model.Name;
                     }
 
-                    if (!string.IsNullOrEmpty(model.Description))
+                    if (model.Description != null)
                     {
                         exerciseDetails.Description = model.Description;
                     }
 
-                    if (!string.IsNullOrEmpty(model.Instructions))
+                    if (model.Instructions != null)
                     {
                         exerciseDetails.Instructions = model.Instructions;
                     }

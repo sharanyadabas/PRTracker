@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PRTracker.Data;
@@ -12,10 +13,12 @@ namespace PRTracker.Controllers
     public class UserController : ControllerBase
     {
         private readonly ExerciseDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UserController(ExerciseDbContext context)
+        public UserController(ExerciseDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -86,25 +89,13 @@ namespace PRTracker.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var postedModel = new User()
-                    {
-                        Id = model.Id,
-                        UserName = model.UserName,
-                        Email = model.Email,
-                        PasswordHash = model.PasswordHash,
-                        UserLifts = new List<UserLift>(),
-                    };
+                    var postedModel = _mapper.Map<User>(model);
+                    postedModel.UserLifts = new List<UserLift>();
 
                     _context.Users.Add(postedModel);
                     _context.SaveChanges();
 
-                    var createdModel = new CreateUserViewModel()
-                    {
-                        Id = postedModel.Id,
-                        UserName = postedModel.UserName,
-                        Email = postedModel.Email,
-                        PasswordHash = postedModel.PasswordHash,
-                    };
+                    var createdModel = _mapper.Map<CreateUserViewModel>(postedModel);
 
                     response.Status = true;
                     response.Message = "Created User Successfully";
@@ -160,18 +151,17 @@ namespace PRTracker.Controllers
                         return BadRequest(response);
                     }
 
-
-                    if (!string.IsNullOrEmpty(model.UserName))
+                    if (model.UserName != null)
                     {
                         userDetails.UserName = model.UserName;
                     }
 
-                    if (!string.IsNullOrEmpty(model.Email))
+                    if (model.Email != null)
                     {
                         userDetails.Email = model.Email;
                     }
 
-                    if (!string.IsNullOrEmpty(model.PasswordHash))
+                    if (model.PasswordHash != null)
                     {
                         userDetails.PasswordHash = model.PasswordHash;
                     }
@@ -220,7 +210,6 @@ namespace PRTracker.Controllers
 
                     return BadRequest(response);
                 }
-
 
                 _context.Users.Remove(user);
                 _context.SaveChanges();

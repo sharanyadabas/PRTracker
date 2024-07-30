@@ -9,9 +9,13 @@ namespace PRTracker
         public MappingProfiles()
         {
             CreateMap<Exercise, CreateExerciseViewModel>();
-            CreateMap<Exercise, UpdateExerciseViewModel>();
             CreateMap<CreateExerciseViewModel, Exercise>();
-            CreateMap<CreateExerciseViewModel, Exercise>();
+
+            CreateMap<User, CreateUserViewModel>();
+            CreateMap<CreateUserViewModel, User>();
+
+            CreateMap<UserLift, CreateUserLiftViewModel>();
+            CreateMap<CreateUserLiftViewModel, UserLift>();
         }
     }
 }

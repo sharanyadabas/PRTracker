@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PRTracker.Data;
 using PRTracker.Entities;
@@ -11,10 +12,12 @@ namespace PRTracker.Controllers
     public class UserLiftController : ControllerBase
     {
         private readonly ExerciseDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UserLiftController(ExerciseDbContext context)
+        public UserLiftController(ExerciseDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet("{id}")]
@@ -125,48 +128,16 @@ namespace PRTracker.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var postedModel = new UserLift()
-                    {
-                        Id = model.Id,
-                        UserId = model.UserId,
-                        ExerciseId = model.ExerciseId,
-                        Sets = model.Sets,
-                        Reps = model.Reps,
-                        Weight = model.Weight,
-                        Notes = "",
-                    };
-
-                    if (!string.IsNullOrEmpty(model.Notes))
-                    {
-                        postedModel.Notes = model.Notes;
-                    }
-
-                    var user = _context.Users.Where(x => x.Id == model.UserId).FirstOrDefault();
-                    var exercise = _context.Exercises.Where(x => x.Id == model.ExerciseId).FirstOrDefault();
-
-                    if (user == null)
-                    {
-                        response.Status = false;
-                        response.Message = "User not found.";
-                        return BadRequest(response);
-                    }
-
-                    if (exercise == null)
-                    {
-                        response.Status = false;
-                        response.Message = "Exercise not found.";
-                        return BadRequest(response);
-                    }
-
-                    user.UserLifts.Add(postedModel);
-                    exercise.UserLifts.Add(postedModel);
+                    var postedModel = _mapper.Map<UserLift>(model);
 
                     _context.UserLifts.Add(postedModel);
                     _context.SaveChanges();
 
+                    var createdModel = _mapper.Map<CreateUserLiftViewModel>(postedModel);
+
                     response.Status = true;
                     response.Message = "Created UserLift Successfully";
-                    response.Data = postedModel;
+                    response.Data = createdModel;
 
                     return Ok(response);
                 }
@@ -244,7 +215,7 @@ namespace PRTracker.Controllers
                         userLiftDetails.Weight = model.Weight.Value;
                     }
 
-                    if (!string.IsNullOrEmpty(model.Notes))
+                    if (model.Notes != null)
                     {
                         userLiftDetails.Notes = model.Notes;
                     }
