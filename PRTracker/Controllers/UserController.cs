@@ -38,6 +38,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -70,6 +71,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -96,9 +98,17 @@ namespace PRTracker.Controllers
                     _context.Users.Add(postedModel);
                     _context.SaveChanges();
 
+                    var createdModel = new CreateUserViewModel()
+                    {
+                        Id = postedModel.Id,
+                        UserName = postedModel.UserName,
+                        Email = postedModel.Email,
+                        PasswordHash = postedModel.PasswordHash,
+                    };
+
                     response.Status = true;
                     response.Message = "Created User Successfully";
-                    response.Data = postedModel;
+                    response.Data = createdModel;
 
                     return Ok(response);
                 }
@@ -115,6 +125,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(ex);
             }
@@ -165,6 +176,8 @@ namespace PRTracker.Controllers
                         userDetails.PasswordHash = model.PasswordHash;
                     }
 
+                    userDetails.ModifiedDate = DateTime.UtcNow;
+
                     _context.SaveChanges();
 
                     response.Status = true;
@@ -186,6 +199,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -222,6 +236,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }

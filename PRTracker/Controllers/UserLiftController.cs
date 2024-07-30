@@ -44,6 +44,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -76,6 +77,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -108,6 +110,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -138,8 +141,8 @@ namespace PRTracker.Controllers
                         postedModel.Notes = model.Notes;
                     }
 
-                    User user = _context.Users.Where(x => x.Id == model.UserId).FirstOrDefault();
-                    Exercise exercise = _context.Exercises.Where(x => x.Id == model.ExerciseId).FirstOrDefault();
+                    var user = _context.Users.Where(x => x.Id == model.UserId).FirstOrDefault();
+                    var exercise = _context.Exercises.Where(x => x.Id == model.ExerciseId).FirstOrDefault();
 
                     if (user == null)
                     {
@@ -180,6 +183,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(ex);
             }
@@ -238,13 +242,13 @@ namespace PRTracker.Controllers
                     if (model.Weight.HasValue)                   
                     {                                                
                         userLiftDetails.Weight = model.Weight.Value;
-                    }                                                
-                                                                     
-                    if (!string.IsNullOrEmpty(model.Notes))                   
-                    {                                                
-                        userLiftDetails.Notes = model.Notes;
-                    }                                                
+                    }
 
+                    if (!string.IsNullOrEmpty(model.Notes))
+                    {
+                        userLiftDetails.Notes = model.Notes;
+                    }
+                    
                     _context.SaveChanges();
 
                     response.Status = true;
@@ -266,6 +270,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -302,6 +307,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }

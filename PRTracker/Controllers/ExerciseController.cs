@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PRTracker.Data;
 using PRTracker.Entities;
@@ -11,10 +12,12 @@ namespace PRTracker.Controllers
     public class ExerciseController : ControllerBase
     {
         private readonly ExerciseDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ExerciseController(ExerciseDbContext context)
+        public ExerciseController(ExerciseDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -37,6 +40,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -69,6 +73,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -111,9 +116,18 @@ namespace PRTracker.Controllers
                     _context.Exercises.Add(postedModel);
                     _context.SaveChanges();
 
+                    var createdModel = new CreateExerciseViewModel
+                    {
+                        Id = postedModel.Id,
+                        Name = postedModel.Name,
+                        Description = postedModel.Description,
+                        Instructions = postedModel.Instructions,
+                        Images = postedModel.Images
+                    };
+
                     response.Status = true;
                     response.Message = "Created Exercise Successfully";
-                    response.Data = postedModel;
+                    response.Data = createdModel;
 
                     return Ok(response);
                 }
@@ -130,6 +144,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(ex);
             }
@@ -185,6 +200,8 @@ namespace PRTracker.Controllers
                         exerciseDetails.Images = model.Images;
                     }
 
+                    exerciseDetails.ModifiedDate = DateTime.UtcNow;
+
                     _context.SaveChanges();
 
                     response.Status = true;
@@ -206,6 +223,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
@@ -242,6 +260,7 @@ namespace PRTracker.Controllers
             {
                 response.Status = false;
                 response.Message = "Something went wrong";
+                response.Data = ex;
 
                 return BadRequest(response);
             }
