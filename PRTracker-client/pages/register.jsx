@@ -1,12 +1,12 @@
 import PageContainer from "../components/PageContainer";
-import SignIn from "../components/SignIn";
+import SignUp from "../components/SignUp";
 
-function Login() {
+function Register() {
   return (
     <PageContainer>
-      <SignIn />
+      <SignUp />
     </PageContainer>
   );
 }
 
-export default Login;
+export default Register;

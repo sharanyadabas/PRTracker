@@ -80,6 +80,39 @@ namespace PRTracker.Controllers
             }
         }
 
+        [HttpGet("email/{email}")]
+        public IActionResult GetUserByEmail(string email)
+        {
+            BaseResponseModel response = new BaseResponseModel();
+
+            try
+            {
+                var user = _context.Users.Where(x => x.Email == email).FirstOrDefault();
+
+                if (user == null)
+                {
+                    response.Status = false;
+                    response.Message = "Record Doesn't Exist";
+
+                    return BadRequest(response);
+                }
+
+                response.Status = true;
+                response.Message = "Success";
+                response.Data = user;
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "Something went wrong";
+                response.Data = ex;
+
+                return BadRequest(response);
+            }
+        }
+
         [HttpPost]
         public IActionResult CreateUser(CreateUserViewModel model)
         {
@@ -89,6 +122,14 @@ namespace PRTracker.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    bool emailExists = _context.Users.Any(u => u.Email == model.Email);
+                    if (emailExists)
+                    {
+                        response.Status = false;
+                        response.Message = "Email already exists";
+                        return BadRequest(response);
+                    }
+
                     var postedModel = _mapper.Map<User>(model);
                     postedModel.UserLifts = new List<UserLift>();
 
@@ -158,6 +199,13 @@ namespace PRTracker.Controllers
 
                     if (model.Email != null)
                     {
+                        bool emailExists = _context.Users.Any(u => u.Email == model.Email);
+                        if (emailExists)
+                        {
+                            response.Status = false;
+                            response.Message = "Email already exists";
+                            return BadRequest(response);
+                        }
                         userDetails.Email = model.Email;
                     }
 

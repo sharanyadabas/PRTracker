@@ -35,6 +35,13 @@ namespace PRTracker.Data
                 .HasOne(ul => ul.Exercise)
                 .WithMany(e => e.UserLifts)
                 .HasForeignKey(ul => ul.ExerciseId);
+
+            modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+            base.OnModelCreating(modelBuilder);
+
         }
     }
 }
